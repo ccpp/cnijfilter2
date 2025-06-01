@@ -1,6 +1,6 @@
 default: libcnijfilter2
 
-libcnijfilter2: cmdtocanonij2/filter/cmdtocanonij2 cnijbe2/src/cnijbe2 ./lgmon3/src/cnijlgmon3 #librastertocanonij libtocanonij libtocnpwg
+libcnijfilter2: cmdtocanonij2/filter/cmdtocanonij2 cnijbe2/src/cnijbe2 ./lgmon3/src/cnijlgmon3 rastertocanonij/src/rastertocanonij tocanonij/src/tocanonij tocnpwg/src/tocnpwg
 
 # Dependencies
 # - linux_base-rl9
@@ -17,7 +17,7 @@ WRKSRC=..
 CUPS_LDFLAGS=-L/usr/local/lib -lcups
 
 clean:
-	rm -f cmdtocanonij2/config.status cnijbe2/config.status $(WRKSRC)/lgmon3/config.status
+	rm -f cmdtocanonij2/config.status cnijbe2/config.status $(WRKSRC)/lgmon3/config.status rastertocanonij/config.status tocanonij/config.status
 
 configure: cmdtocanonij2/config.status
 
@@ -30,16 +30,37 @@ cnijbe2/src/cnijbe2: cnijbe2/config.status
 ./lgmon3/src/cnijlgmon3: $(WRKSRC)/lgmon3/config.status $(WRKSRC)/com/libs_bin$(ARC)/libcnbpnet30.so $(WRKSRC)/com/libs_bin$(ARC)/libcnnet2.so
 	$(MAKE) -C $(WRKSRC)/lgmon3
 
+rastertocanonij/src/rastertocanonij: rastertocanonij/config.status
+	$(MAKE) -C rastertocanonij
+
+tocanonij/src/tocanonij: tocanonij/config.status
+	$(MAKE) -C tocanonij
+
+tocnpwg/src/tocnpwg: tocnpwg/config.status
+	$(MAKE) -C tocnpwg
+
 cmdtocanonij2/config.status:
 	mkdir -pv cmdtocanonij2
-	(cd cmdtocanonij2 && ../../cmdtocanonij2/autogen.sh --prefix=$(PREFIX) --datadir=$(DATADIR) LDFLAGS="-L../../../com/libs_bin$(ARC)")
+	cd cmdtocanonij2 && ../../cmdtocanonij2/autogen.sh --prefix=$(PREFIX) --datadir=$(DATADIR) LDFLAGS="-L../../../com/libs_bin$(ARC)"
 
 cnijbe2/config.status:
 	mkdir -pv cnijbe2
-	(cd cnijbe2 && ../../cnijbe2/autogen.sh --prefix=$(PREFIX) --enable-progpath=$(BINDIR) LDFLAGS="$(CUPS_LDFLAGS)")
+	cd cnijbe2 && ../../cnijbe2/autogen.sh --prefix=$(PREFIX) --enable-progpath=$(BINDIR) LDFLAGS="$(CUPS_LDFLAGS)"
 
 $(WRKSRC)/lgmon3/config.status:
-	(cd ../lgmon3 && ./autogen.sh --prefix=$(PREFIX) --enable-libpath=$(LIBDIR) --enable-progpath=$(BINDIR) --datadir=$(DATADIR) LDFLAGS="-L../../com/libs_bin$(ARC) $(CUPS_LDFLAGS)")
+	cd ../lgmon3 && ./autogen.sh --prefix=$(PREFIX) --enable-libpath=$(LIBDIR) --enable-progpath=$(BINDIR) --datadir=$(DATADIR) LDFLAGS="-L../../com/libs_bin$(ARC) $(CUPS_LDFLAGS)"
+
+rastertocanonij/config.status:
+	mkdir -pv rastertocanonij
+	cd rastertocanonij && ../../rastertocanonij/autogen.sh --prefix=$(PREFIX) --enable-progpath=$(BINDIR)
+
+tocanonij/config.status:
+	mkdir -pv tocanonij
+	cd tocanonij && ../../tocanonij/autogen.sh --prefix=$(PREFIX)
+
+tocnpwg/config.status:
+	mkdir -pv tocnpwg
+	cd tocnpwg && ../../tocnpwg/autogen.sh --prefix=$(PREFIX)
 
 $(WRKSRC)/com/libs_bin$(ARC)/libcnbpcnclapicom2.so: $(WRKSRC)/com/libs_bin$(ARC)/libcnbpcnclapicom2.so.5.0.0
 	ln -sv libcnbpcnclapicom2.so.5.0.0 $@

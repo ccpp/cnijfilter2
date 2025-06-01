@@ -5,7 +5,7 @@ filter_PROGRAMS= rastertocanonij
 rastertocanonij_SOURCES= \
 	main.c getsettings.c paramlist.c canonopt.c common.c
 
-rastertocanonij_LDADD= -lcups
+rastertocanonij_LDADD= @CUPS_LIBS@
 
-AM_CFLAGS= -O2 -Wall
+AM_CFLAGS= -O2 -Wall @CUPS_CFLAGS@
 
