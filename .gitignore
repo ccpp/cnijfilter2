@@ -48,3 +48,6 @@ tocnpwg/src/tocnpwg
 /debian/printer-driver-cnijfilter2/
 build-stamp
 configure-stamp
+
+# FreeBSD build files
+*.cache/
