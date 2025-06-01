@@ -28,7 +28,7 @@ AM_PROG_LIBTOOL
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lcups':
-AC_CHECK_LIB([cups], [main])
+AC_CHECK_LIB([cups], [cupsGetFile])
 
 # Checks for header files.
 AC_HEADER_STDC
@@ -70,10 +70,14 @@ else
   AC_DEFINE_UNQUOTED(PACKAGE_DATA_DIR, "${datadir}/${PACKAGE}")
 fi
 
-CFLAGS="-O2"
+#CFLAGS="-O2"
+PKG_CHECK_MODULES([CUPS], [cups])
+PKG_CHECK_MODULES([USB1], [libusb-1.0])
 
 XML2_CFLAGS=`xml2-config --cflags`
 AC_SUBST(XML2_CFLAGS)
+XML2_LDFLAGS=`xml2-config --libs`
+AC_SUBST(XML2_LDFLAGS)
 
 AC_OUTPUT([
 Makefile
