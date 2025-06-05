@@ -9,6 +9,7 @@ Makefile
 Makefile.in
 Makefile.in.in
 Makefile.org
+compile
 COPYING
 POTFILES
 aclocal.m4
