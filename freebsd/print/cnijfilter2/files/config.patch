@@ -1,0 +1,155 @@
+diff --git a/cmdtocanonij2/configure.in b/cmdtocanonij2/configure.in
+index 87c712a..5bca5df 100644
+--- a/cmdtocanonij2/configure.in
++++ b/cmdtocanonij2/configure.in
+@@ -31,6 +31,9 @@ AC_FUNC_FORK
+ AC_FUNC_MALLOC
+ AC_CHECK_FUNCS([dup2 memset socket strdup strrchr])
+ 
++CUPS_LIBEXEC=`cups-config --serverbin`
++AC_SUBST(CUPS_LIBEXEC)
++
+ CFLAGS="-O2"
+ 
+ AC_OUTPUT(Makefile
+diff --git a/cmdtocanonij2/filter/Makefile.am b/cmdtocanonij2/filter/Makefile.am
+index 5fa5503..6866402 100644
+--- a/cmdtocanonij2/filter/Makefile.am
++++ b/cmdtocanonij2/filter/Makefile.am
+@@ -1,4 +1,4 @@
+-filterdir=$(libdir)/cups/filter
++filterdir=@CUPS_LIBEXEC@/filter
+ 
+ filter_PROGRAMS= cmdtocanonij2
+ 
+diff --git a/cnijbe2/configure.in b/cnijbe2/configure.in
+index 7160d98..c1363f9 100644
+--- a/cnijbe2/configure.in
++++ b/cnijbe2/configure.in
+@@ -36,6 +36,9 @@ AC_FUNC_FORK
+ AC_FUNC_MALLOC
+ AC_CHECK_FUNCS([memset socket strdup strrchr])
+ 
++CUPS_LIBEXEC=`cups-config --serverbin`
++AC_SUBST(CUPS_LIBEXEC)
++
+ CFLAGS="-O2"
+ 
+ AC_OUTPUT(Makefile
+diff --git a/cnijbe2/src/Makefile.am b/cnijbe2/src/Makefile.am
+index eaf89f2..a5f968d 100644
+--- a/cnijbe2/src/Makefile.am
++++ b/cnijbe2/src/Makefile.am
+@@ -1,6 +1,6 @@
+ ## Process this file with automake to produce Makefile.in
+ 
+-backend_bindir = /usr/lib/cups/backend
++backend_bindir = @CUPS_LIBEXEC@/backend
+ backend_bin_PROGRAMS = cnijbe2
+ transform = 
+ 
+diff --git a/lgmon3/configure.in b/lgmon3/configure.in
+index 35de42d..0328a9f 100644
+--- a/lgmon3/configure.in
++++ b/lgmon3/configure.in
+@@ -28,7 +28,7 @@ AM_PROG_LIBTOOL
+ 
+ # Checks for libraries.
+ # FIXME: Replace `main' with a function in `-lcups':
+-AC_CHECK_LIB([cups], [main])
++AC_CHECK_LIB([cups], [cupsGetFile])
+ 
+ # Checks for header files.
+ AC_HEADER_STDC
+@@ -70,10 +70,14 @@ else
+   AC_DEFINE_UNQUOTED(PACKAGE_DATA_DIR, "${datadir}/${PACKAGE}")
+ fi
+ 
+-CFLAGS="-O2"
++#CFLAGS="-O2"
++PKG_CHECK_MODULES([CUPS], [cups])
++PKG_CHECK_MODULES([USB1], [libusb-1.0])
+ 
+ XML2_CFLAGS=`xml2-config --cflags`
+ AC_SUBST(XML2_CFLAGS)
++XML2_LDFLAGS=`xml2-config --libs`
++AC_SUBST(XML2_LDFLAGS)
+ 
+ AC_OUTPUT([
+ Makefile
+diff --git a/lgmon3/src/Makefile.am b/lgmon3/src/Makefile.am
+index bc5ecaf..87c08c5 100644
+--- a/lgmon3/src/Makefile.am
++++ b/lgmon3/src/Makefile.am
+@@ -6,6 +6,7 @@ transform =
+ 
+ cnijlgmon3_SOURCES = cnijcomif.c cnijifusb.c cnijlgmon3.c cnijifnet.c keytext.c cnijifnet2.c cnijutil.c
+ 
+-CFLAGS = -O2 -Wall -I/usr/include/libusb-1.0 -I./common @XML2_CFLAGS@
++CFLAGS = -O2 -Wall -I/usr/include/libusb-1.0 -I./common @XML2_CFLAGS@ @CUPS_CFLAGS@
++#LDFLAGS = @XML2_LDFLAGS@
+ 
+-cnijlgmon3_LDADD = -ldl -lusb-1.0 -lcnnet2 -lxml2 -lcnbpcnclapicom2 -lcnbpnet30
++cnijlgmon3_LDADD = -ldl @XML2_LDFLAGS@ @USB1_LIBS@ -lcnnet2 -lcnbpcnclapicom2 -lcnbpnet30 -lintl
+diff --git a/rastertocanonij/configure.in b/rastertocanonij/configure.in
+index e8a8825..09cdde6 100644
+--- a/rastertocanonij/configure.in
++++ b/rastertocanonij/configure.in
+@@ -22,8 +22,9 @@ AC_PROG_RANLIB
+ AM_PROG_LIBTOOL
+ 
+ # Checks for libraries.
+-# FIXME: Replace `main' with a function in `-lcups':
+-AC_CHECK_LIB([cups], [main])
++PKG_CHECK_MODULES([CUPS], [cups])
++CUPS_LIBEXEC=`cups-config --serverbin`
++AC_SUBST(CUPS_LIBEXEC)
+ 
+ # Checks for header files.
+ AC_HEADER_STDC
+diff --git a/rastertocanonij/src/Makefile.am b/rastertocanonij/src/Makefile.am
+index 47468ff..2e1971a 100644
+--- a/rastertocanonij/src/Makefile.am
++++ b/rastertocanonij/src/Makefile.am
+@@ -1,11 +1,11 @@
+-filterdir=$(libdir)/cups/filter
++filterdir=@CUPS_LIBEXEC@/filter
+ 
+ filter_PROGRAMS= rastertocanonij
+ 
+ rastertocanonij_SOURCES= \
+ 	main.c getsettings.c paramlist.c canonopt.c common.c
+ 
+-rastertocanonij_LDADD= -lcups
++rastertocanonij_LDADD= @CUPS_LIBS@
+ 
+-AM_CFLAGS= -O2 -Wall
++AM_CFLAGS= -O2 -Wall @CUPS_CFLAGS@
+ 
+diff --git a/tocnpwg/configure.in b/tocnpwg/configure.in
+index c7fefb1..3e87dc3 100644
+--- a/tocnpwg/configure.in
++++ b/tocnpwg/configure.in
+@@ -39,6 +39,8 @@ AC_FUNC_FORK
+ AC_FUNC_MALLOC
+ AC_CHECK_FUNCS([dup2 memset socket strdup strrchr])
+ 
++PKG_CHECK_MODULES([CUPS], [cups])
++
+ CFLAGS="-O2"
+ 
+ XML_2_CFLAGS=`xml2-config --cflags`
+diff --git a/tocnpwg/src/Makefile.am b/tocnpwg/src/Makefile.am
+index dec5b91..cd002ec 100644
+--- a/tocnpwg/src/Makefile.am
++++ b/tocnpwg/src/Makefile.am
+@@ -7,7 +7,7 @@ bin_PROGRAMS= tocnpwg
+ tocnpwg_SOURCES= \
+ 	main.c mkpset.c
+ 
+-tocnpwg_LDADD= -lcups -lcupsimage -lxml2
++tocnpwg_LDADD= @CUPS_LIBS@ -lcupsimage -lxml2
+ 
+-AM_CFLAGS= -O2 -Wall
++AM_CFLAGS= -O2 -Wall @CUPS_CFLAGS@
+ 
