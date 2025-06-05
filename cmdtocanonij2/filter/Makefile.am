@@ -1,4 +1,4 @@
-filterdir=$(libdir)/cups/filter
+filterdir=@CUPS_LIBEXEC@/filter
 
 filter_PROGRAMS= cmdtocanonij2
 

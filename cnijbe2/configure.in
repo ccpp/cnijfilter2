@@ -36,6 +36,9 @@ AC_FUNC_FORK
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([memset socket strdup strrchr])
 
+CUPS_LIBEXEC=`cups-config --serverbin`
+AC_SUBST(CUPS_LIBEXEC)
+
 CFLAGS="-O2"
 
 AC_OUTPUT(Makefile

@@ -1,6 +1,6 @@
-default: libcnijfilter2
+default: build
 
-libcnijfilter2: cmdtocanonij2/filter/cmdtocanonij2 cnijbe2/src/cnijbe2 ./lgmon3/src/cnijlgmon3 rastertocanonij/src/rastertocanonij tocanonij/src/tocanonij tocnpwg/src/tocnpwg
+build: cmdtocanonij2/filter/cmdtocanonij2 cnijbe2/src/cnijbe2 ../lgmon3/src/cnijlgmon3 rastertocanonij/src/rastertocanonij tocanonij/src/tocanonij tocnpwg/src/tocnpwg
 
 # Dependencies
 # - linux_base-rl9
@@ -16,6 +16,20 @@ WRKSRC=..
 # TODO get from pkg-config --libs:
 CUPS_LDFLAGS=-L/usr/local/lib -lcups
 
+install: cmdtocanonij2/filter/cmdtocanonij2 cnijbe2/src/cnijbe2 $(WRKSRC)/lgmon3/src/cnijlgmon3 rastertocanonij/src/rastertocanonij tocanonij/src/tocanonij tocnpwg/src/tocnpwg
+	mkdir -pv $(DESTDIR)$(LIBDIR)/bjlib2/
+	mkdir -pv $(DESTDIR)$(DATADIR)/cups/model/
+	install -v -c -m 644 $(WRKSRC)/com/ini/cnnet.ini $(DESTDIR)$(LIBDIR)/bjlib2/
+	install -v -c -s -m 755 $(WRKSRC)/com/libs_bin$(ARC)/*.so.* $(DESTDIR)$(LIBDIR)
+	install -v -m 644 $(WRKSRC)/ppd/*.ppd $(DESTDIR)$(DATADIR)/cups/model/
+	@# DESTDIR is forwarded to these:
+	$(MAKE) -C cmdtocanonij2 install
+	$(MAKE) -C cnijbe2 install
+	$(MAKE) -C $(WRKSRC)/lgmon3 install
+	$(MAKE) -C rastertocanonij install
+	$(MAKE) -C tocanonij install
+	$(MAKE) -C tocnpwg install
+
 clean:
 	rm -f cmdtocanonij2/config.status cnijbe2/config.status $(WRKSRC)/lgmon3/config.status rastertocanonij/config.status tocanonij/config.status
 
@@ -27,7 +41,7 @@ cmdtocanonij2/filter/cmdtocanonij2: cmdtocanonij2/config.status $(WRKSRC)/com/li
 cnijbe2/src/cnijbe2: cnijbe2/config.status
 	$(MAKE) -C cnijbe2
 
-./lgmon3/src/cnijlgmon3: $(WRKSRC)/lgmon3/config.status $(WRKSRC)/com/libs_bin$(ARC)/libcnbpnet30.so $(WRKSRC)/com/libs_bin$(ARC)/libcnnet2.so
+$(WRKSRC)/lgmon3/src/cnijlgmon3: $(WRKSRC)/lgmon3/config.status $(WRKSRC)/com/libs_bin$(ARC)/libcnbpnet30.so $(WRKSRC)/com/libs_bin$(ARC)/libcnnet2.so
 	$(MAKE) -C $(WRKSRC)/lgmon3
 
 rastertocanonij/src/rastertocanonij: rastertocanonij/config.status
@@ -45,7 +59,7 @@ cmdtocanonij2/config.status:
 
 cnijbe2/config.status:
 	mkdir -pv cnijbe2
-	cd cnijbe2 && ../../cnijbe2/autogen.sh --prefix=$(PREFIX) --enable-progpath=$(BINDIR) LDFLAGS="$(CUPS_LDFLAGS)"
+	cd cnijbe2 && ../../cnijbe2/autogen.sh --prefix=$(PREFIX) --enable-libpath=$(LIBDIR) --enable-progpath=$(BINDIR) LDFLAGS="$(CUPS_LDFLAGS)"
 
 $(WRKSRC)/lgmon3/config.status:
 	cd ../lgmon3 && ./autogen.sh --prefix=$(PREFIX) --enable-libpath=$(LIBDIR) --enable-progpath=$(BINDIR) --datadir=$(DATADIR) LDFLAGS="-L../../com/libs_bin$(ARC) $(CUPS_LDFLAGS)"
@@ -73,3 +87,5 @@ $(WRKSRC)/com/libs_bin$(ARC)/libcnnet2.so: $(WRKSRC)/com/libs_bin$(ARC)/libcnnet
 
 test:
 	LD_LIBRARY_PATH=/compat/linux/usr/lib64/:$(WRKSRC)/cnijfilter2/com/libs_bin64 cmdtocanonij2/filter/cmdtocanonij2
+
+.PHONY: default build clean install test

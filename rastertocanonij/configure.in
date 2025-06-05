@@ -23,6 +23,8 @@ AM_PROG_LIBTOOL
 
 # Checks for libraries.
 PKG_CHECK_MODULES([CUPS], [cups])
+CUPS_LIBEXEC=`cups-config --serverbin`
+AC_SUBST(CUPS_LIBEXEC)
 
 # Checks for header files.
 AC_HEADER_STDC
