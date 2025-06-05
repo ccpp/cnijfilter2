@@ -52,3 +52,4 @@ configure-stamp
 
 # FreeBSD build files
 *.cache/
+!freebsd/print/cnijfilter2/Makefile
