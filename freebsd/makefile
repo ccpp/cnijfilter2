@@ -10,6 +10,7 @@ PREFIX=/usr/local
 DATADIR=$(PREFIX)/share
 BINDIR=$(PREFIX)/bin
 LIBDIR=$(PREFIX)/lib
+ETCDIR=$(PREFIX)/etc
 ARC=64
 WRKSRC=..
 #CUPSBINDIR=$(PREFIX)/libexec/cups # cups-config --serverbin
@@ -20,9 +21,14 @@ CUPS_LDFLAGS=-L/usr/local/lib -lcups
 install: build
 	mkdir -pv $(DESTDIR)$(LIBDIR)/bjlib2/
 	mkdir -pv $(DESTDIR)$(DATADIR)/cups/model/
+	mkdir -pv $(DESTDIR)$(ETCDIR)/libmap.d/
 	install -v -c -m 644 $(WRKSRC)/com/ini/cnnet.ini $(DESTDIR)$(LIBDIR)/bjlib2/
 	install -v -c -s -m 755 $(WRKSRC)/com/libs_bin$(ARC)/*.so.* $(DESTDIR)$(LIBDIR)
+	ln -svf libcnbpcnclapicom2.so.5.0.0 $(DESTDIR)$(LIBDIR)/libcnbpcnclapicom2.so
+	ln -svf libcnbpnet30.so.1.0.0 $(DESTDIR)$(LIBDIR)/libcnbpnet30.so
+	ln -svf libcnnet2.so.1.2.4 $(DESTDIR)$(LIBDIR)/libcnnet2.so
 	install -v -m 644 $(WRKSRC)/ppd/*.ppd $(DESTDIR)$(DATADIR)/cups/model/
+	install -v -m 644 cnijfilter2.x64.libmap.conf ${DESTDIR}${ETCDIR}/libmap.d/
 	@# DESTDIR is forwarded to these:
 	$(MAKE) -C $(WRKSRC)/cmdtocanonij2 install
 	$(MAKE) -C $(WRKSRC)/cnijbe2 install
@@ -57,13 +63,13 @@ configure $(WRKSRC)/cmdtocanonij2/Makefile $(WRKSRC)/cnijbe2/Makefile $(WRKSRC)/
 	cd $(WRKSRC)/tocnpwg && ./autogen.sh --prefix=$(PREFIX)
 
 $(WRKSRC)/com/libs_bin$(ARC)/libcnbpcnclapicom2.so: $(WRKSRC)/com/libs_bin$(ARC)/libcnbpcnclapicom2.so.5.0.0
-	ln -sv libcnbpcnclapicom2.so.5.0.0 $@
+	ln -svf libcnbpcnclapicom2.so.5.0.0 $@
 
 $(WRKSRC)/com/libs_bin$(ARC)/libcnbpnet30.so: $(WRKSRC)/com/libs_bin$(ARC)/libcnbpnet30.so.1.0.0
-	ln -sv libcnbpnet30.so.1.0.0 $@
+	ln -svf libcnbpnet30.so.1.0.0 $@
 
 $(WRKSRC)/com/libs_bin$(ARC)/libcnnet2.so: $(WRKSRC)/com/libs_bin$(ARC)/libcnnet2.so.1.2.4
-	ln -sv libcnnet2.so.1.2.4 $@
+	ln -svf libcnnet2.so.1.2.4 $@
 
 test:
 	LD_LIBRARY_PATH=/compat/linux/usr/lib64/:$(WRKSRC)/cnijfilter2/com/libs_bin64 cmdtocanonij2/filter/cmdtocanonij2

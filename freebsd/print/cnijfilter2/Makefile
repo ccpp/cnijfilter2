@@ -29,7 +29,12 @@ ARC=64
 
 # Fix finding cups
 #USES=libtool
-USES=	pkgconfig
+#USES=	pkgconfig
+USES=	linux
+USE_LINUX=	cups-libs	# HOW to? (from Epson)
+#USE_LINUX_PREFIX
+
+# pkg install linux-rl9-cups-libs
 
 #CCUPS_LDFLAGS!=	pkg-config --libs-only-L cups
 #CUPS_CFLAGS!=	pkg-config --cflags-only-I cups
@@ -43,9 +48,9 @@ do-configure:
 	cd $(WRKSRC)/tocnpwg && ./autogen.sh --prefix=$(PREFIX)
 
 do-build:
-	ln -svf libcnbpcnclapicom2.so.5.0.0 $(WRKSRC)/com/libs_bin$(ARC)/libcnbpcnclapicom2.so
-	ln -svf libcnbpnet30.so.1.0.0 $(WRKSRC)/com/libs_bin$(ARC)/libcnbpnet30.so
-	ln -svf libcnnet2.so.1.2.4 $(WRKSRC)/com/libs_bin$(ARC)/libcnnet2.so
+	${LN} -svf libcnbpcnclapicom2.so.5.0.0 $(WRKSRC)/com/libs_bin$(ARC)/libcnbpcnclapicom2.so
+	${LN} -svf libcnbpnet30.so.1.0.0 $(WRKSRC)/com/libs_bin$(ARC)/libcnbpnet30.so
+	${LN} -svf libcnnet2.so.1.2.4 $(WRKSRC)/com/libs_bin$(ARC)/libcnnet2.so
 	$(MAKE) -C $(WRKSRC)/cmdtocanonij2
 	$(MAKE) -C $(WRKSRC)/cnijbe2
 	$(MAKE) -C $(WRKSRC)/lgmon3
@@ -53,5 +58,13 @@ do-build:
 	$(MAKE) -C $(WRKSRC)/tocanonij
 	$(MAKE) -C $(WRKSRC)/tocnpwg
 
+do-install:
+	$(MAKE) -C $(WRKSRC)/cmdtocanonij2 install
+	$(MAKE) -C $(WRKSRC)/cnijbe2 install
+	$(MAKE) -C $(WRKSRC)/lgmon3 install
+	$(MAKE) -C $(WRKSRC)/rastertocanonij install
+	$(MAKE) -C $(WRKSRC)/tocanonij install
+	$(MAKE) -C $(WRKSRC)/tocnpwg install
+	# TODO...
 
 .include <bsd.port.mk>
